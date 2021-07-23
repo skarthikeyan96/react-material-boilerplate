@@ -1,5 +1,5 @@
 {
-  "name": "react-material-app",
+  "name": "@karthikeyan996/react-material-app",
   "version": "0.1.0",
   "bin": {
     "react-material-app": "./bin/create-app.js"
