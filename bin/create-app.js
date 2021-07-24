@@ -50,8 +50,7 @@ if(!checkedOut) process.exit(-1)
 // change to project directory
 process.chdir(folderPath)
 
-const installedDeps = console.log("Installing the dependencies")
-runCommand(installDepsCommand)
+const installedDeps = runCommand(installDepsCommand)
 
 if(!installedDeps) process.exit(-1)
 
