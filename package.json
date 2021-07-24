@@ -1,9 +1,9 @@
 {
   "name": "@karthikeyan996/react-material-starter",
   "description": "Starter template for react and material Projects",
-	"author": "Karthikeyan",
-	"license": "MIT",
-  "version": "0.1.0",
+  "author": "Karthikeyan",
+  "license": "MIT",
+  "version": "0.1.1",
   "bin": {
     "react-material-app": "./bin/create-app.js"
   },
