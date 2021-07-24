@@ -4,7 +4,8 @@
 
 
 const {execSync} = require('child_process')
-const fs = require("fs")
+const { unlinkSync, rmdirSync, existsSync } = require("fs");
+const { join } = require('path')
 
 const runCommand = command => {
     try {
@@ -26,7 +27,7 @@ if(!repoName)
 }
 
 try {
-  if (fs.existsSync(repoName)) {
+  if (existsSync(repoName)) {
     console.log("project directory already exists. please enter new project name")
   } 
 } catch(e) {
@@ -34,7 +35,11 @@ try {
 }
 
 const gitCheckoutCommand = `git clone https://github.com/skarthikeyan96/react-material-boilerplate ${repoName}`
-const installDepsCommand = `cd ${repoName} && yarn install`
+const installDepsCommand = `yarn install`
+
+const initWorkingDirectory = process.cwd();
+const folderPath = join(initWorkingDirectory, repoName);
+
 
 console.log(`cloning the repository , ${repoName}`)
 
@@ -42,8 +47,11 @@ const checkedOut = runCommand(gitCheckoutCommand)
 
 if(!checkedOut) process.exit(-1)
 
-console.log("Installing the dependencies")
-const installedDeps = runCommand(installDepsCommand)
+// change to project directory
+process.chdir(folderPath)
+
+const installedDeps = console.log("Installing the dependencies")
+runCommand(installDepsCommand)
 
 if(!installedDeps) process.exit(-1)
 
@@ -51,10 +59,10 @@ if(!installedDeps) process.exit(-1)
  * Delete the setup file and readme 
  */
 unlinkSync(join(process.cwd(), "README.md"));
-unlinkSync(join(process.cwd(), "bin", "setup.js"));
+unlinkSync(join(process.cwd(), "bin", "create-app.js"));
 rmdirSync(join(process.cwd(), "bin"));
 
-runCommand(`git init && git add . && git commit -am "inital commit"`);
+runCommand(`git init`);
 console.log(`new git repo initialized successfully!`);
 
 
