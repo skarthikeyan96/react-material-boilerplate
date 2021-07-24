@@ -3,7 +3,7 @@
   "description": "Starter template for react and material Projects",
   "author": "Karthikeyan",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "bin": {
     "react-material-app": "./bin/create-app.js"
   },
