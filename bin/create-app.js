@@ -1,68 +1,91 @@
 #! /usr/bin/env node
 
-'use strict';
 
+const {
+  exec
+} = require('child_process')
+const {
+  unlinkSync,
+  rmdirSync,
+  existsSync
+} = require("fs");
+const {
+  join
+} = require('path')
+/**
+ * Takes a function following the common error-first callback style, i.e. taking a (err, value) => ... callback as the last argument, and returns a version that returns promises.
+ */
+const {
+  promisify
+} = require('util')
 
-const {execSync} = require('child_process')
-const { unlinkSync, rmdirSync, existsSync } = require("fs");
-const { join } = require('path')
+const folderName = process.argv[2] || 'react-material-starter';
+const repoName = `https://github.com/skarthikeyan96/react-material-boilerplate `
 
-const runCommand = command => {
-    try {
-        execSync(`${command}`,{stdio: 'inherit'})
-    } catch (error) {
-        console.error('Failed ',error)
-        return false;
-    }
-    return true
-}
+const gitCheckoutCommand = `git clone --depth 1 ${repoName} ${folderName}`
+const installDepsCommand = `yarn install`
+const removeGitFolder = `npx rimraf ./.git`
+const reinitalizeGit = `git init && git checkout -b main && git add . && git commit -am "initial commit"`
 
-const repoName = process.argv[2];
+const workingDirectory = process.cwd();
+const folderPath = join(workingDirectory, folderName);
 
-if(!repoName)
-{
-    // exit the process with error message
-    console.error('Please add project name')
-    process.exit('-1')
-}
+// convert callback based exec to a promise 
+const execPromise = promisify(exec)
+
+const runCommand = async (command) => {
+  try {
+    const {
+      stdout,
+      stderr
+    } = await execPromise(command);
+    console.log(stdout);
+    console.log(stderr);
+  } catch (err) {
+    console.log("error occured while executing the command 🚨 ", err)
+  }
+};
 
 try {
-  if (existsSync(repoName)) {
-    console.log("project directory already exists. please enter new project name")
-  } 
-} catch(e) {
+  if (existsSync(folderName)) {
+    console.log(`${folderName} already exists. please enter new project name`)
+    console.log("==================")
+    console.log("Format :  npx react-material-starter <Project Name> ")
+    return;
+  }
+} catch (e) {
   console.log("An error occurred.", e)
 }
 
-const gitCheckoutCommand = `git clone https://github.com/skarthikeyan96/react-material-boilerplate ${repoName}`
-const installDepsCommand = `yarn install`
+(async () => {
+  try {
+    // clone the repository 
+    await runCommand(gitCheckoutCommand)
+    console.log("cloning complete...")
 
-const initWorkingDirectory = process.cwd();
-const folderPath = join(initWorkingDirectory, repoName);
+    process.chdir(folderPath)
+    console.log("changing the directory and removing the lock file...")
 
+    unlinkSync(join(process.cwd(), "yarn.lock"));   
+    
+    console.log(`installing dependencies, please wait...`);
+    await runCommand(installDepsCommand);
+    console.log(`dependencies installed successfully!`);
 
-console.log(`cloning the repository , ${repoName}`)
+    await runCommand(removeGitFolder);
+    console.log(`old .git folder deleted successfully!`);
 
-const checkedOut = runCommand(gitCheckoutCommand)
+    unlinkSync(join(process.cwd(), "README.md"));
+    unlinkSync(join(process.cwd(), "bin", "create-app.js"));
+    rmdirSync(join(process.cwd(), "bin"));
 
-if(!checkedOut) process.exit(-1)
-
-// change to project directory
-process.chdir(folderPath)
-
-const installedDeps = runCommand(installDepsCommand)
-
-if(!installedDeps) process.exit(-1)
-
-/**
- * Delete the setup file and readme 
- */
-unlinkSync(join(process.cwd(), "README.md"));
-unlinkSync(join(process.cwd(), "bin", "create-app.js"));
-rmdirSync(join(process.cwd(), "bin"));
-
-runCommand(`git init`);
-console.log(`new git repo initialized successfully!`);
+    await runCommand(reinitalizeGit);
+    console.log(`new git repo initialized successfully!`);
 
 
-console.log('Congratulations, You are ready')
+    console.log('Congratulations, You are ready')
+  } catch (err) {
+    console.log(err)
+  }
+
+})()
