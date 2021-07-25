@@ -3,8 +3,13 @@ import './App.css'
 import Box from '@material-ui/core/Box'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import Button from '@material-ui/core/Button'
+import React from 'react'
 
-function App() {
+/**
+ * Renders a <App /> component
+ */
+
+const App = () => {
   return (
     <Box color='text.primary' className='App'>
       <header className='App-header'>
